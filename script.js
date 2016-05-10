@@ -11,13 +11,14 @@ var prop = {
 };
 var selection = 'tweet';
 var positiveColor = '#0007ff';
-var negativeColor = '#FBFF00';
+var negativeColor = '#ff4400';
+var couchHost = document.location.hostname;
 
 // tweets sentiment fetching logic
 function loadCouchData() {
   $.ajax({
-    url:'http://' + document.location.hostname +
-    ':5984/tweets_polygons_relational/_design/stats/_view/count_polygons?group=true',
+    url:'http://' + couchHost +
+    '/couch/tweets_polygons_relational/_design/stats/_view/count_polygons?group=true',
     dataType: 'jsonp',
     success: function (data) {
       console.log(data);
@@ -114,10 +115,21 @@ function styleFunction(feature) {
     // change color based on data type selected
     if (selection == 'tweet') {
       var middle = sentiment.positive - sentiment.negative;
-      var spectrumAmount = 0.5 + (middle /
-                           Math.max(sentiment.positive, sentiment.negative) || 0) / 2;
-      color = tinycolor(positiveColor).spin(spectrumAmount * -180)
+      var spectrumAmount = (middle /
+                           Math.max(sentiment.positive, sentiment.negative) || 0);
+      color = tinycolor(negativeColor).spin(spectrumAmount * 180)
                                       .toHexString();
+      strokeColor = tinycolor(color).darken(10);
+    } else if (selection == 'employment' ||
+               selection == 'education' ||
+               selection == 'income' ||
+               selection == 'government') {
+      // get the index selected from the feature
+      economicIndex = feature.getProperty(prop[selection]);
+
+      // normalise it between 0-1
+      economicIndex = (economicIndex + 3) / 6;
+      color = tinycolor(negativeColor).spin(economicIndex * 180);
       strokeColor = tinycolor(color).darken(10);
     }
   }
@@ -127,7 +139,6 @@ function styleFunction(feature) {
     fillColor: color,
     strokeColor: strokeColor,
     strokeWeight: 1,
-    title: feature.getProperty('1Employmen') || null,
   };
 }
 
@@ -155,6 +166,7 @@ function getContent(feature) {
 
 function changeSelection(sel) {
   selection = sel;
+  console.log(sel);
 
   map.data.setStyle(styleFunction);
 }
