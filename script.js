@@ -115,9 +115,9 @@ function styleFunction(feature) {
     // change color based on data type selected
     if (selection == 'tweet') {
       var middle = sentiment.positive - sentiment.negative;
-      var spectrumAmount = (middle /
+      var spectrumAmount = 0.5 + (middle /
                            Math.max(sentiment.positive, sentiment.negative) || 0);
-      color = tinycolor(negativeColor).spin(spectrumAmount * 180)
+      color = tinycolor(negativeColor).spin(spectrumAmount * 60)
                                       .toHexString();
       strokeColor = tinycolor(color).darken(10);
     } else if (selection == 'employment' ||
@@ -129,7 +129,7 @@ function styleFunction(feature) {
 
       // normalise it between 0-1
       economicIndex = (economicIndex + 3) / 6;
-      color = tinycolor(negativeColor).spin(economicIndex * 180);
+      color = tinycolor(negativeColor).spin(economicIndex * 90);
       strokeColor = tinycolor(color).darken(10);
     }
   }
